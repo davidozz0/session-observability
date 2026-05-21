@@ -1,7 +1,7 @@
 package com.davidozzo.demo.observability.service;
 
 import com.davidozzo.demo.observability.model.dto.ExecuteResponse;
-import com.davidozzo.demo.observability.model.dto.SessionStartResponse;
+import com.davidozzo.demo.observability.model.dto.SessionSummary;
 import com.davidozzo.demo.observability.model.entity.SessionEntity;
 import com.davidozzo.demo.observability.repository.SessionRepository;
 import org.slf4j.Logger;
@@ -10,6 +10,7 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class SessionService {
@@ -22,7 +23,7 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
     }
 
-    public SessionStartResponse startSession() {
+    public String startSession() {
         String sessionId = MDC.get("sessionId");
 
         SessionEntity entity = new SessionEntity(sessionId);
@@ -30,14 +31,11 @@ public class SessionService {
 
         log.info("Sessione creata con successo");
 
-        return new SessionStartResponse(sessionId);
+        return sessionId;
     }
 
     public ExecuteResponse execute() {
         String sessionId = MDC.get("sessionId");
-        if (sessionId == null) {
-            throw new IllegalArgumentException("X-Session-Id header mancante");
-        }
 
         SessionEntity entity = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Sessione non trovata: " + sessionId));
@@ -50,5 +48,13 @@ public class SessionService {
         log.trace("Trace operativo: versione entita' {}", entity.getVersion());
 
         return new ExecuteResponse("OK");
+    }
+
+    public List<SessionSummary> listSessions() {
+        List<SessionEntity> entities = sessionRepository.findAll();
+        log.info("Elenco sessioni richiesto: {} sessioni trovate", entities.size());
+        return entities.stream()
+                .map(e -> new SessionSummary(e.getSessionId(), e.getCreatedAt()))
+                .toList();
     }
 }

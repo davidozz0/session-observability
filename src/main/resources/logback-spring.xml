@@ -2,7 +2,7 @@
 <configuration>
 
     <property name="LOG_DIR" value="logs"/>
-    <property name="LOG_FILE" value="${LOG_DIR}/app.log"/>
+    <property name="LOG_FILE" value="${LOG_DIR}/app.json"/>
     <property name="PATTERN"
               value="%d{ISO8601} [%thread] %-5level [sessionId=%X{sessionId}] %logger{36} - %msg%n"/>
 
@@ -12,20 +12,20 @@
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.json</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <encoder>
-            <pattern>${PATTERN}</pattern>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>sessionId</includeMdcKeyName>
         </encoder>
     </appender>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
+        <appender-ref ref="FILE_JSON"/>
     </root>
 
     <logger name="com.davidozzo.demo.observability" level="TRACE"/>
