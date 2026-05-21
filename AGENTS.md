@@ -63,6 +63,33 @@ Sono path che **non richiedono** header X-Session-Id:
 ### Thread safety
 MDC è ThreadLocal (SLF4J). Ogni request thread Tomcat ha copia isolata. Zero race condition.
 
+### Flusso completo richiesta
+
+```
+HTTP Request
+     │
+     ▼
+SessionLoggingFilter.doFilter()
+  ├─ resolveSessionId()
+  │   ├─ /start    → UUID.randomUUID()
+  │   ├─ /list, /actuator, /h2-console → null
+  │   └─ altri    → header X-Session-Id (se manca → 400)
+  │
+  ├─ if (sessionId != null) MDC.put("sessionId", sessionId)
+  ├─ chain.doFilter()
+  │   │
+  │   ▼
+  │   SessionController
+  │     ├─ GET /start  → service.startSession() → MDC.get → salva su DB → return sessionId
+  │     │                 controller: Response 200 + header X-Session-Id
+  │     ├─ GET /execute → service.execute() → MDC.get → cerca su DB → logga
+  │     │                 metriche: Counter + Timer
+  │     │                 controller: Response 200 { status: "OK" }
+  │     └─ GET /list   → service.listSessions() → findAll → return lista
+  │
+  └─ finally { MDC.clear() }
+```
+
 ## Endpoint API
 
 | Metodo | Path | Header richiesto | Response |
