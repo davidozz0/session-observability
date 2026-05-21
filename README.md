@@ -37,9 +37,9 @@ Non è un progetto production-ready, ma un **laboratorio** pensato per essere es
                 │                                       │
                 ▼                                       ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                     SessionService                            │
-│  - startSession(): genera UUID, salva su H2                   │
-│  - execute(): cerca sessione, aggiorna accesso, logga         │
+│                     SessionService                           │
+│  - startSession(): genera UUID, salva su H2                  │
+│  - execute(): cerca sessione, aggiorna accesso, logga        │
 └──────────────────┬───────────────────────────────────────────┘
                    │
                    ▼
