@@ -17,9 +17,10 @@
 | Logging | Logback + SLF4J + MDC + Logstash encoder | — |
 | Build | Maven | 3.9+ |
 | Persistenza | Spring Data JPA + Hibernate | @Version per optimistic locking |
+| Metriche | Micrometer + Actuator + Prometheus | Counter, Timer, health check |
 | Lombok | Usato (getter/setter/costruttori) | — |
 
-**Dipendenze chiave in pom.xml**: spring-boot-starter-web, spring-boot-starter-data-jpa, h2 (runtime), logstash-logback-encoder 8.0, lombok (optional)
+**Dipendenze chiave in pom.xml**: spring-boot-starter-web, spring-boot-starter-data-jpa, h2 (runtime), logstash-logback-encoder 8.0, spring-boot-starter-actuator, micrometer-registry-prometheus, lombok (optional)
 
 ## Regole operative per l'AI
 1. **MAI chiamare commit/push in autonomia** — solo su richiesta esplicita dell'utente
@@ -31,6 +32,7 @@
 7. **Nessun commento nel codice** — il codice deve essere autoesplicativo
 8. **Java 21** — usare pattern matching instanceof, records dove appropriato
 9. **Aggiornamento AGENTS.md** — durante plan/build, chiedere sempre all'utente se vuole aggiornare AGENTS.md con le nuove decisioni
+10. **Centralizzare senza over-engineering** — cercare il punto giusto tra astrazione e semplicità: centralizzare responsabilità affini (es. ciclo di vita MDC in un solo filtro) e separare i compiti (es. filtro = put/clear, service = sola lettura), ma senza creare layer inutili o astrarre prima del bisogno
 
 ## Architettura — MDC centralizzato
 
@@ -85,7 +87,7 @@ E:\dev\src\session-observability\
 │   │   ├── SessionController.java                 ← GET /start, /execute, /list
 │   │   └── GlobalExceptionHandler.java             ← @ControllerAdvice
 │   ├── service/
-│   │   └── SessionService.java                     ← logica con MDC.get sola lettura
+│   │   └── SessionService.java                     ← logica con MDC.get + metriche Micrometer
 │   ├── model/
 │   │   ├── dto/
 │   │   │   ├── ExecuteResponse.java               ← { status }
@@ -155,9 +157,18 @@ Rotazione giornaliera, 30gg retention.
 - **Motivazione**: ridurre codice ripetitivo, focus su logica di business
 - **Conseguenza**: Entity usa @Getter/@NoArgsConstructor/@Setter, DTO usa @Data/@NoArgsConstructor/@AllArgsConstructor, Service/Controller usano @RequiredArgsConstructor
 
+### ADR-8: Metriche con Micrometer + Actuator
+- **Decisione**: usare `MeterRegistry` per counter e timer custom nel Service
+- **Motivazione**: visibilità su quante sessioni/create/execute vengono fatte, durata delle execute, health check
+- **Conseguenza**: Service inietta `MeterRegistry`; metriche custom esposte via `/actuator/metrics` e `/actuator/prometheus`
+- **Metriche definite**:
+  - `session.created` (Counter) — ogni startSession()
+  - `session.executed` (Counter con tag status=success|error) — ogni execute()
+  - `session.execute.duration` (Timer) — durata della execute()
+
 ## Prossimi step pianificati
-1. Micrometer + Actuator (metriche request/error)
-2. Correlation ID (traceId + spanId nel MDC)
+1. [x] Micrometer + Actuator (metriche request/error)
+2. [ ] Correlation ID (traceId + spanId nel MDC)
 3. OpenTelemetry / distributed tracing (Jaeger/Zipkin)
 4. Test di integrazione con verifica MDC
 5. Containerizzazione (Dockerfile)
