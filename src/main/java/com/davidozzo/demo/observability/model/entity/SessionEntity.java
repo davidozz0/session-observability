@@ -51,4 +51,8 @@ public class SessionEntity {
     public void setLastAccessedAt(LocalDateTime lastAccessedAt) {
         this.lastAccessedAt = lastAccessedAt;
     }
+
+    public Long getVersion() {
+        return version;
+    }
 }

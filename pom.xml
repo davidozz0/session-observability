@@ -39,7 +39,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- PostgreSQL per profilo prod -- scommentare quando serve
+        <!-- PostgreSQL per profilo prod - scommentare quando serve
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
