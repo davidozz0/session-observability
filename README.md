@@ -156,8 +156,9 @@ Richiesta HTTP
 SessionLoggingFilter.doFilter()
       │
       ├─ /api/session/start     → UUID.randomUUID() → MDC.put("sessionId", uuid)
-      ├─ /api/session/list      → salta (endpoint pubblico)
-      ├─ /h2-console            → salta (endpoint pubblico)
+  ├─ /api/session/list      → salta (endpoint pubblico)
+  ├─ /h2-console            → salta (endpoint pubblico)
+  ├─ /actuator              → salta (endpoint pubblico)
       ├─ altri con header       → header X-Session-Id → MDC.put("sessionId", valore)
       └─ altri senza header     → 400 BAD_REQUEST (fermato qui)
       │
@@ -207,6 +208,38 @@ Thread-3: MDC["sessionId"] = "ccc" → log(INFO) → stampa "ccc"
 
 Nessun `synchronized`, nessun singleton log manager da gestire.
 
+## Metriche con Micrometer + Actuator
+
+Spring Boot Actuator espone endpoint di diagnostica e monitoraggio. Le metriche vengono raccolte con **Micrometer** e possono essere esportate verso Prometheus, Datadog, Graphite, ecc.
+
+### Endpoint Actuator attivi
+
+| Endpoint | Descrizione |
+|---|---|
+| `/actuator/health` | Stato dell'applicazione (UP/DOWN) con dettagli su DB, disco, ping |
+| `/actuator/metrics` | Elenco di tutte le metriche registrate |
+| `/actuator/metrics/{nome}` | Dettaglio di una metrica specifica |
+| `/actuator/prometheus` | Formato Prometheus (per scraping) |
+| `/actuator/info` | Metadati dell'applicazione |
+
+### Metriche custom
+
+Definite in `SessionService` tramite `MeterRegistry`:
+
+| Metrica | Tipo | Tag | Quando |
+|---|---|---|---|
+| `session.created` | Counter | — | Ogni chiamata a `startSession()` |
+| `session.executed` | Counter | `status=success`, `status=error` | Ogni chiamata a `execute()` |
+| `session.execute.duration` | Timer | — | Durata della `execute()` (in secondi) |
+
+### Esempi
+
+```bash
+curl http://localhost:8080/actuator/health
+curl http://localhost:8080/actuator/metrics/session.created
+curl http://localhost:8080/actuator/prometheus
+```
+
 ## Profili Spring
 
 | Profilo | Attivo di default | Database |
@@ -232,6 +265,11 @@ java -jar target/session-observability-0.0.1-SNAPSHOT.jar
 SESSID=$(curl -s -D - http://localhost:8080/api/session/start | grep -i X-Session-Id | awk '{print $2}' | tr -d '\r')
 curl -H "X-Session-Id: $SESSID" http://localhost:8080/api/session/execute
 curl http://localhost:8080/api/session/list
+
+# Health check e metriche
+curl http://localhost:8080/actuator/health
+curl http://localhost:8080/actuator/info
+curl http://localhost:8080/actuator/metrics/session.created
 
 # Console H2 (solo in dev)
 http://localhost:8080/h2-console
@@ -265,7 +303,7 @@ session-observability/
 
 - [x] Progetto base con sessioni e MDC logging
 - [x] Log strutturato JSON (Logstash encoder)
-- [ ] Micrometer + Actuator (metriche request/error)
+- [x] Micrometer + Actuator (metriche request/error)
 - [ ] Correlation ID (traceId + spanId nel MDC)
 - [ ] OpenTelemetry / distributed tracing
 - [ ] Test di integrazione con verifica MDC
