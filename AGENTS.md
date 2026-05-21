@@ -17,7 +17,7 @@
 | Logging | Logback + SLF4J + MDC + Logstash encoder | — |
 | Build | Maven | 3.9+ |
 | Persistenza | Spring Data JPA + Hibernate | @Version per optimistic locking |
-| Lombok | Opzionale (non usato nel codice) | — |
+| Lombok | Usato (getter/setter/costruttori) | — |
 
 **Dipendenze chiave in pom.xml**: spring-boot-starter-web, spring-boot-starter-data-jpa, h2 (runtime), logstash-logback-encoder 8.0, lombok (optional)
 
@@ -27,7 +27,7 @@
 3. **MDC lifecycle solo nel Filter** — mai MDC.put/remove/clear in Service/Controller
 4. **Service usa solo MDC.get in lettura** — per leggere il contesto corrente
 5. **No @RequestHeader per sessionId** — il filtro lo legge dall'header e lo mette in MDC
-6. **Lombok non è usato** — getter/setter scritti a mano
+6. **Lombok è usato** — @Getter, @Setter, @NoArgsConstructor, @RequiredArgsConstructor, @Data, @AllArgsConstructor
 7. **Nessun commento nel codice** — il codice deve essere autoesplicativo
 8. **Java 21** — usare pattern matching instanceof, records dove appropriato
 9. **Aggiornamento AGENTS.md** — durante plan/build, chiedere sempre all'utente se vuole aggiornare AGENTS.md con le nuove decisioni
@@ -149,6 +149,11 @@ Rotazione giornaliera, 30gg retention.
 ### ADR-6: H2 oggi, PostgreSQL domani
 - **Decisione**: oggi H2 in-memory (profilo dev), template prod pronto
 - **Motivazione**: stessa entity/repository, swap con properties
+
+### ADR-7: Lombok per ridurre boilerplate
+- **Decisione**: usare Lombok per getter, setter, costruttori e DTO
+- **Motivazione**: ridurre codice ripetitivo, focus su logica di business
+- **Conseguenza**: Entity usa @Getter/@NoArgsConstructor/@Setter, DTO usa @Data/@NoArgsConstructor/@AllArgsConstructor, Service/Controller usano @RequiredArgsConstructor
 
 ## Prossimi step pianificati
 1. Micrometer + Actuator (metriche request/error)

@@ -3,6 +3,7 @@ package com.davidozzo.demo.observability.controller;
 import com.davidozzo.demo.observability.model.dto.ExecuteResponse;
 import com.davidozzo.demo.observability.model.dto.SessionSummary;
 import com.davidozzo.demo.observability.service.SessionService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/session")
+@RequiredArgsConstructor
 public class SessionController {
 
     private static final Logger log = LoggerFactory.getLogger(SessionController.class);
 
     private final SessionService sessionService;
-
-    public SessionController(SessionService sessionService) {
-        this.sessionService = sessionService;
-    }
 
     @GetMapping("/start")
     public ResponseEntity<Void> startSession() {

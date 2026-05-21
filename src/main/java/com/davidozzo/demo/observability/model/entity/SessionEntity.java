@@ -1,10 +1,16 @@
 package com.davidozzo.demo.observability.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sessions")
+@NoArgsConstructor
+@Getter
 public class SessionEntity {
 
     @Id
@@ -17,42 +23,16 @@ public class SessionEntity {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Setter
     @Column(nullable = false)
     private LocalDateTime lastAccessedAt;
 
     @Version
     private Long version;
 
-    public SessionEntity() {
-    }
-
     public SessionEntity(String sessionId) {
         this.sessionId = sessionId;
         this.createdAt = LocalDateTime.now();
         this.lastAccessedAt = LocalDateTime.now();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getLastAccessedAt() {
-        return lastAccessedAt;
-    }
-
-    public void setLastAccessedAt(LocalDateTime lastAccessedAt) {
-        this.lastAccessedAt = lastAccessedAt;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 }

@@ -1,17 +1,13 @@
 package com.davidozzo.demo.observability.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExecuteResponse {
 
     private String status;
-
-    public ExecuteResponse() {
-    }
-
-    public ExecuteResponse(String status) {
-        this.status = status;
-    }
-
-    public String getStatus() {
-        return status;
-    }
 }

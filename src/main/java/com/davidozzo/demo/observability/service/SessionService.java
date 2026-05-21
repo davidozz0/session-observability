@@ -4,6 +4,7 @@ import com.davidozzo.demo.observability.model.dto.ExecuteResponse;
 import com.davidozzo.demo.observability.model.dto.SessionSummary;
 import com.davidozzo.demo.observability.model.entity.SessionEntity;
 import com.davidozzo.demo.observability.repository.SessionRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -13,15 +14,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
 
     private final SessionRepository sessionRepository;
-
-    public SessionService(SessionRepository sessionRepository) {
-        this.sessionRepository = sessionRepository;
-    }
 
     public String startSession() {
         String sessionId = MDC.get("sessionId");

@@ -1,25 +1,16 @@
 package com.davidozzo.demo.observability.model.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SessionSummary {
 
     private String sessionId;
     private LocalDateTime createdAt;
-
-    public SessionSummary() {
-    }
-
-    public SessionSummary(String sessionId, LocalDateTime createdAt) {
-        this.sessionId = sessionId;
-        this.createdAt = createdAt;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 }
