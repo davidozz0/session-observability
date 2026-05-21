@@ -19,7 +19,8 @@ public class SessionLoggingFilter implements Filter {
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/api/session/start",
             "/api/session/list",
-            "/h2-console"
+            "/h2-console",
+            "/actuator"
     );
 
     @Override
