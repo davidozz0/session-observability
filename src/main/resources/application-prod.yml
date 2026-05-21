@@ -1,0 +1,14 @@
+# Attivare con --spring.profiles.active=prod
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/observability
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
