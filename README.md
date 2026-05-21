@@ -23,7 +23,7 @@ Non è un progetto production-ready, ma un **laboratorio** pensato per essere es
            │                                    │ Header: X-Session-Id
            ▼                                    ▼
 ┌──────────────────────────────────────────────────────────────┐
-│              SessionLoggingFilter (implements Filter)         │
+│              SessionLoggingFilter (implements Filter)        │
 │  - Legge X-Session-Id dall'header                            │
 │  - Inietta il valore in MDC (ThreadLocal)                    │
 │  - Pulisce MDC nel finally block                             │
@@ -44,9 +44,9 @@ Non è un progetto production-ready, ma un **laboratorio** pensato per essere es
                    │
                    ▼
 ┌──────────────────────────────────────────────────────────────┐
-│              SessionRepository (JPA / H2)                     │
+│              SessionRepository (JPA / H2)                    │
 │  - Oggi: H2 in-memory (profilo dev)                          │
-│  - Futuro: PostgreSQL (profilo prod, properties pronte)       │
+│  - Futuro: PostgreSQL (profilo prod, properties pronte)      │
 └──────────────────────────────────────────────────────────────┘
 ```
 
