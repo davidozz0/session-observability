@@ -7,21 +7,25 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @Order(1)
 public class SessionLoggingFilter implements Filter {
 
     private static final String SESSION_HEADER = "X-Session-Id";
+    private static final String START_PATH = "/api/session/start";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         try {
-            String sessionId = extractSessionId(request);
-            if (sessionId != null && !sessionId.isBlank()) {
-                MDC.put("sessionId", sessionId);
+            if (request instanceof HttpServletRequest httpRequest) {
+                String sessionId = resolveSessionId(httpRequest);
+                if (sessionId != null) {
+                    MDC.put("sessionId", sessionId);
+                }
             }
             chain.doFilter(request, response);
         } finally {
@@ -29,10 +33,10 @@ public class SessionLoggingFilter implements Filter {
         }
     }
 
-    private String extractSessionId(ServletRequest request) {
-        if (request instanceof HttpServletRequest httpRequest) {
-            return httpRequest.getHeader(SESSION_HEADER);
+    private String resolveSessionId(HttpServletRequest request) {
+        if (START_PATH.equals(request.getRequestURI())) {
+            return UUID.randomUUID().toString();
         }
-        return null;
+        return request.getHeader(SESSION_HEADER);
     }
 }

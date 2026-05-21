@@ -28,11 +28,9 @@ public class SessionController {
     }
 
     @GetMapping("/execute")
-    public ResponseEntity<ExecuteResponse> execute(
-            @RequestHeader("X-Session-Id") String sessionId) {
-
-        log.info("Richiesta esecuzione per sessione [{}]", sessionId);
-        ExecuteResponse response = sessionService.execute(sessionId);
+    public ResponseEntity<ExecuteResponse> execute() {
+        log.info("Richiesta esecuzione");
+        ExecuteResponse response = sessionService.execute();
         return ResponseEntity.ok(response);
     }
 }

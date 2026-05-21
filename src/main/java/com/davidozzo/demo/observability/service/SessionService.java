@@ -10,7 +10,6 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class SessionService {
@@ -24,26 +23,29 @@ public class SessionService {
     }
 
     public SessionStartResponse startSession() {
-        String sessionId = UUID.randomUUID().toString();
+        String sessionId = MDC.get("sessionId");
 
         SessionEntity entity = new SessionEntity(sessionId);
         sessionRepository.save(entity);
 
-        MDC.put("sessionId", sessionId);
         log.info("Sessione creata con successo");
-        MDC.remove("sessionId");
 
         return new SessionStartResponse(sessionId);
     }
 
-    public ExecuteResponse execute(String sessionId) {
+    public ExecuteResponse execute() {
+        String sessionId = MDC.get("sessionId");
+        if (sessionId == null) {
+            throw new IllegalArgumentException("X-Session-Id header mancante");
+        }
+
         SessionEntity entity = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Sessione non trovata: " + sessionId));
 
         entity.setLastAccessedAt(LocalDateTime.now());
         sessionRepository.save(entity);
 
-        log.info("Esecuzione operazione per la sessione [{}]", sessionId);
+        log.info("Esecuzione operazione per la sessione");
         log.debug("Dettaglio operazione: sessione creata il {}", entity.getCreatedAt());
         log.trace("Trace operativo: versione entita' {}", entity.getVersion());
 
